@@ -45,8 +45,8 @@ def configure_db(db_uri, mysql_host=None, mysql_user=None, mysql_password=None, 
     if db_uri == LOCALDB:
         dbfilepath = (Path(__file__).parent/"student.db").absolute()
         print(f"Using SQLite3 Database: {dbfilepath}")
-        # creator = lambda: sqlite3.connect(f"file:{dbfilepath}?mode=ro", uri=True)
-        return SQLDatabase(create_engine(f"sqlite:///"))
+        creator = lambda: sqlite3.connect(f"file:{dbfilepath}?mode=ro", uri=True)
+        return SQLDatabase(create_engine(f"sqlite:///", creator=creator))
     elif db_uri == MYSQL:
         if not (mysql_host and mysql_user and mysql_password and mysql_db):
             st.error("Please provide all the MySQL connection details")
@@ -66,7 +66,8 @@ agent=create_sql_agent(
     llm=llm,
     toolkit=toolkit,
     verbose=True,
-    agent_type=AgentType.ZERO_SHOT_REACT_DESCRIPTION
+    agent_type=AgentType.ZERO_SHOT_REACT_DESCRIPTION,
+    handle_parsing_errors=True
 )
 
 if "messages" not in st.session_state or st.sidebar.button("Clear message history"):
